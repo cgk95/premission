@@ -1,5 +1,7 @@
 package study.excel.resume.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -19,10 +21,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-
 public class ResumeController {
     private final ResumeView resumeView;
     private final Workbook workbook;
+    private static final Logger logger = LogManager.getLogger(ResumeController.class);
     private int educationRowNum;
 
     public ResumeController() {
@@ -75,6 +77,7 @@ public class ResumeController {
             insertEducation(edu, educationDataRow);
         }
     }
+
     private void makeCareerInfo2ExcelFile(List<Career> careerList, Sheet sheet) {
         int careerStartRow = educationRowNum + 1;
         makeCareerHeader(sheet, careerStartRow);
@@ -146,7 +149,7 @@ public class ResumeController {
             insertResizedImageIntoSheet(sheet, resizedBufferedImage, resizedImage);
             adjustRowHeightAndFirstColumnWidth(sheet, dataRow, newHeight, (float) newWidth);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("이미지 불러오기 실패 :: " + e);
         }
     }
 
@@ -170,6 +173,7 @@ public class ResumeController {
         int columeWidth = (int) Math.floor((newWidth / (float) 8) * 256);
         sheet.setColumnWidth(0, columeWidth);
     }
+
     //-- 자기소개서 --//
     private void createSelfIntroductionSheet(String selfIntroduction) {
         Sheet sheet = workbook.createSheet("자기소개서");
@@ -190,7 +194,7 @@ public class ResumeController {
         try (FileOutputStream fileOutputStream = new FileOutputStream("이력서.xlsx")) {
             workbook.write(fileOutputStream);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("엑셀 파일 저장 실패 :: " + e);
         }
     }
 }
